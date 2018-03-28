@@ -85,6 +85,11 @@ ST_OBJ_CF2 += usbd_ioreq.o usbd_req.o usbd_core.o
 # libdw dw1000 driver
 VPATH_CF2 += vendor/libdw1000/src
 
+#pprzlink
+PPRZ_PATH = vendor/pprzlink
+VPATH_CF2 += $(wildcard ${PPRZ_PATH}/var/share/pprzlink/src/pprz_transport.c)
+
+
 # FreeRTOS
 VPATH += $(PORT)
 PORT_OBJ = port.o
@@ -135,6 +140,10 @@ PROJ_OBJ_CF2 +=  pm_f405.o syslink.o radiolink.o ow_syslink.o proximity.o usec_t
 PROJ_OBJ_CF2 +=  sensors_$(SENSORS).o
 # libdw
 PROJ_OBJ_CF2 += libdw1000.o libdw1000Spi.o
+
+# pprzlink
+#PROJ_OBJ_CF2 += pprz_transport.o 
+
 
 # Modules
 PROJ_OBJ += system.o comm.o console.o pid.o crtpservice.o param.o
@@ -229,6 +238,8 @@ INCLUDES_CF2 += -I$(LIB)/STM32_USB_Device_Library/Core/inc
 INCLUDES_CF2 += -I$(LIB)/STM32_USB_OTG_Driver/inc
 INCLUDES_CF2 += -Isrc/deck/interface -Isrc/deck/drivers/interface
 INCLUDES_CF2 += -Ivendor/libdw1000/inc
+CFLAGS+=-I${PPRZ_PATH}/var/include -DUSE_PPRZLINK -DDOWNLINK
+
 INCLUDES_CF2 += -I$(LIB)/FatFS
 
 ifeq ($(USE_FPU), 1)
@@ -310,7 +321,7 @@ endif
 
 
 all: check_submodules build
-build: clean_version compile print_version size
+build: clean_version pprzlink compile print_version size
 compile: clean_version $(PROG).hex $(PROG).bin $(PROG).dfu
 
 libarm_math.a:
@@ -344,6 +355,9 @@ ifeq ($(CLOAD), 1)
 else
 	@echo "Only cload build can be bootloaded. Launch build and cload with CLOAD=1"
 endif
+
+pprzlink:
+	$(MAKE) -C $(PPRZ_PATH) -s --no-print-directory pymessages
 
 #Flash the stm.
 flash:

@@ -36,6 +36,9 @@
 #include "debug.h"
 #include "log.h"
 #include "uart1.h"
+#include "system.h"
+#include "pprz_datalink.h"
+#include "pprzlink/intermcu_msg.h"
 
  static char ch = 'a';
 
