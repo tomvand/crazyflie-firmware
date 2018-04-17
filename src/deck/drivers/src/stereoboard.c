@@ -25,37 +25,45 @@
  */
 #define DEBUG_MODULE "StereoboardDeck"
 
-#include <stdint.h>
-#include <stdlib.h>
-#include "stm32fxxx.h"
 
-#include "deck.h"
+#include "stereoboard.h"
 
-#include "FreeRTOS.h"
-#include "timers.h"
-#include "debug.h"
-#include "log.h"
-#include "uart1.h"
-#include "system.h"
-#include "pprz_datalink.h"
-#include "pprzlink/intermcu_msg.h"
 
  static char ch = 'a';
 
+
+struct stereocam_t stereocam = {
+   .device = 0,
+   .msg_available = false
+ };
+ static uint8_t stereocam_msg_buf[256]  __attribute__((aligned));   ///< The message buffer for the stereocamera
+ uint8_t msg_buf[4*64];           // define local data
+
+ struct pprz_transport pprz;
+ struct link_device dev;
+ struct uint8array {
+   uint8_t len;
+   uint8_t height;
+   uint8_t *data;
+   bool data_new;
+ };
 void stereoboardTask(void* arg)
 {
-  systemWaitStart();
+  struct uint8array stereocam_data = {.len = 0, .data = msg_buf, .data_new = 0, .height = 0}; // buffer used to contain image without line endings
 
-  while(1){
-    uart1Getchar(&ch);
-  }
+  pprz_check_and_parse(&dev, &pprz, stereocam_data.data, &stereocam_data.data_new);
+
 }
 
 
 /* Initialize the deck driver */
-static void stereoboardDeckInit(DeckInfo *info)
+void stereoboardDeckInit(DeckInfo *info)
 {
   uart1Init(115200);
+  struct UartDataStruct USART1_Data ;
+
+  datalink_init(&USART1_Data);
+
   DEBUG_PRINT("Test StereoboardDeck!\n");
 
   xTaskCreate(stereoboardTask, UART_RX_TASK_NAME, UART_RX_TASK_STACKSIZE, NULL, 2, NULL);

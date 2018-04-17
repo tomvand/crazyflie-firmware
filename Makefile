@@ -87,8 +87,7 @@ VPATH_CF2 += vendor/libdw1000/src
 
 #pprzlink
 PPRZ_PATH = vendor/pprzlink
-VPATH_CF2 += $(wildcard ${PPRZ_PATH}/var/share/pprzlink/src/pprz_transport.c)
-
+VPATH_CF2 +=  ${PPRZ_PATH}/lib/v1.0/C
 
 # FreeRTOS
 VPATH += $(PORT)
@@ -142,7 +141,7 @@ PROJ_OBJ_CF2 +=  sensors_$(SENSORS).o
 PROJ_OBJ_CF2 += libdw1000.o libdw1000Spi.o
 
 # pprzlink
-#PROJ_OBJ_CF2 += pprz_transport.o 
+PROJ_OBJ_CF2 += pprz_transport.o 
 
 
 # Modules
@@ -186,7 +185,7 @@ PROJ_OBJ_CF2 += outlierFilter.o
 PROJ_OBJ_CF2 += flowdeck.o
 PROJ_OBJ_CF2 += oa.o
 PROJ_OBJ_CF2 += stereoboard.o
-
+PROJ_OBJ_CF2 += pprz_datalink.o
 
 ifeq ($(LPS_TDOA_ENABLE), 1)
 CFLAGS += -DLPS_TDOA_ENABLE
@@ -238,6 +237,7 @@ INCLUDES_CF2 += -I$(LIB)/STM32_USB_Device_Library/Core/inc
 INCLUDES_CF2 += -I$(LIB)/STM32_USB_OTG_Driver/inc
 INCLUDES_CF2 += -Isrc/deck/interface -Isrc/deck/drivers/interface
 INCLUDES_CF2 += -Ivendor/libdw1000/inc
+INCLUDES_CF2 += -Ivendor/pprzlink/lib/v1.0/C
 CFLAGS+=-I${PPRZ_PATH}/var/include -DUSE_PPRZLINK -DDOWNLINK
 
 INCLUDES_CF2 += -I$(LIB)/FatFS

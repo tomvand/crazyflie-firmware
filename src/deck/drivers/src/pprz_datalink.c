@@ -23,8 +23,10 @@ static void send_message(void *port, long fd)
  */
 static void put_byte(void *dev, long fd, uint8_t data)
 {
-  while (((struct UartDataStruct*)dev)->tx(&data, 1) == 0)
-    ;
+
+  uart1Putchar(data);
+ /* while (((struct UartDataStruct*)dev)->tx(&data, 1) == 0)
+    ;*/
 }
 
 /* Add data buffer to datalink
@@ -35,10 +37,12 @@ static void put_byte(void *dev, long fd, uint8_t data)
  */
 static void put_buffer(void *dev, long fd, uint8_t *data, uint16_t length)
 {
-  uint16_t i;
+
+  uart1SendData((uint32_t)length,data);
+/*  uint16_t i;
   for (i = 0; i < length; i++) {
     put_byte(dev, fd, data[i]);
-  }
+  }*/
 }
 
 static int check_free_space(void *dev, long *fd, uint16_t length)
@@ -50,7 +54,8 @@ static int check_free_space(void *dev, long *fd, uint16_t length)
 
 static int char_available(void *dev)
 {
-  return usart_char_available((struct UartDataStruct *)dev);
+  return uart1CharAvailable();
+/*  return usart_char_available((struct UartDataStruct *)dev);*/
 }
 
 static uint8_t get_byte(void *dev)

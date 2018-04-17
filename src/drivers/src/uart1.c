@@ -26,8 +26,7 @@
 #include <string.h>
 
 /*FreeRtos includes*/
-#include "FreeRTOS.h"
-#include "queue.h"
+
 
 /*ST includes */
 #include "stm32fxxx.h"
@@ -38,6 +37,8 @@
 #include "cfassert.h"
 #include "config.h"
 #include "nvicconf.h"
+
+typedef xQUEUE Queue_t;
 
 
 static xQueueHandle uart1queue;
@@ -138,6 +139,16 @@ void uart1Getchar(char * ch)
 {
   xQueueReceive(uart1queue, ch, portMAX_DELAY);
 }
+
+bool uart1CharAvailable(void)
+{
+  Queue_t * const pxQueue = ( Queue_t * ) uart1queue;
+  if (pxQueue->uxMessagesWaiting > 0)
+    return true;
+  else
+    return false;
+}
+
 
 void __attribute__((used)) USART3_IRQHandler(void)
 {
