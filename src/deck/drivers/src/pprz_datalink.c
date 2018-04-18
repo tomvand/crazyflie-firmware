@@ -6,6 +6,7 @@
  */
 
 #include "pprz_datalink.h"
+#include "debug.h"
 
 struct pprz_transport pprz;
 struct link_device dev;
@@ -47,9 +48,7 @@ static void put_buffer(void *dev, long fd, uint8_t *data, uint16_t length)
 
 static int check_free_space(void *dev, long *fd, uint16_t length)
 {
-  struct UartDataStruct* device = dev;
-  return ((((device->usart_tx_counter_read - device->usart_tx_counter_write) - 1)
-      + TXBUFFERSIZE) % TXBUFFERSIZE);
+
 }
 
 static int char_available(void *dev)
@@ -60,7 +59,12 @@ static int char_available(void *dev)
 
 static uint8_t get_byte(void *dev)
 {
-  return (((struct UartDataStruct*)dev)->rx());
+  char ch;
+  uart1Getchar(&ch);
+
+
+ // return (((struct UartDataStruct*)dev)->rx());
+  return (uint8_t)ch;
 }
 
 /* Initialise the datalink

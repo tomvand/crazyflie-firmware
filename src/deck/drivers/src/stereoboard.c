@@ -29,30 +29,65 @@
 #include "stereoboard.h"
 
 
- static char ch = 'a';
+static char ch = 'a';
+static float velx, vely, velz;
 
 
-struct stereocam_t stereocam = {
+/*struct stereocam_t stereocam = {
    .device = 0,
    .msg_available = false
- };
- static uint8_t stereocam_msg_buf[256]  __attribute__((aligned));   ///< The message buffer for the stereocamera
- uint8_t msg_buf[4*64];           // define local data
+ };*/
+uint8_t msg_buf[4*64];           // define local data
 
- struct pprz_transport pprz;
- struct link_device dev;
- struct uint8array {
-   uint8_t len;
-   uint8_t height;
-   uint8_t *data;
-   bool data_new;
- };
+/* struct pprz_transport pprz;
+ struct link_device dev;*/
+struct uint8array {
+  uint8_t len;
+  uint8_t height;
+  uint8_t *data;
+  bool data_new;
+};
+
+
 void stereoboardTask(void* arg)
 {
+
+  systemWaitStart();
   struct uint8array stereocam_data = {.len = 0, .data = msg_buf, .data_new = 0, .height = 0}; // buffer used to contain image without line endings
 
-  pprz_check_and_parse(&dev, &pprz, stereocam_data.data, &stereocam_data.data_new);
+  while(1){
+    pprz_check_and_parse(&dev, &pprz, stereocam_data.data, &stereocam_data.data_new);
 
+
+    uint8_t msg_id = stereocam_data.data[1];
+    switch (msg_id) {
+
+      case 81: {
+
+        float res = (float)DL_STEREOCAM_VELOCITY_resolution(stereocam_data.data);
+
+
+        velx = (float)DL_STEREOCAM_VELOCITY_velx(stereocam_data.data);
+        vely = (float)DL_STEREOCAM_VELOCITY_vely(stereocam_data.data);
+        velz = (float)DL_STEREOCAM_VELOCITY_velz(stereocam_data.data);
+
+
+       /*float noise = 1-(float)DL_STEREOCAM_VELOCITY_vRMS(stereocam_msg_buf)/res;
+
+       // Rotate camera frame to body frame
+       struct FloatVect3 body_vel;
+       float_rmat_transp_vmult(&body_vel, &stereocam.body_to_cam, &camera_vel);
+         */
+
+        break;
+      }
+
+    }
+    //DEBUG_PRINT("%d, check!\n",vel);
+
+    vTaskDelay(1);
+
+  }
 }
 
 
@@ -76,15 +111,18 @@ void stereoboardDeckInit(DeckInfo *info)
 static const DeckDriver stereoboard_deck = {
     .vid = 0xBC,
     .pid = 0x00,
-  .name = "bcStereoboard",
-  .usedPeriph = DECK_USING_UART1,
-  .usedGpio = DECK_USING_TX1 | DECK_USING_RX1,
+    .name = "bcStereoboard",
+    .usedPeriph = DECK_USING_UART1,
+    .usedGpio = DECK_USING_TX1 | DECK_USING_RX1,
 
-  .init = stereoboardDeckInit
+    .init = stereoboardDeckInit
 };
 
 DECK_DRIVER(stereoboard_deck);
 
 LOG_GROUP_START(stereoboard)
-LOG_ADD(LOG_UINT8, character, &ch)
+LOG_ADD(LOG_FLOAT, velocity x, &velx)
+LOG_ADD(LOG_FLOAT, velocity y, &vely)
+LOG_ADD(LOG_FLOAT, velocity z, &velz)
+
 LOG_GROUP_STOP(stereoboard)

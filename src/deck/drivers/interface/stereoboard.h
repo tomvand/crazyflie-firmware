@@ -43,6 +43,7 @@
 #include "system.h"
 #include "pprzlink/pprz_transport.h"
 #include "pprz_datalink.h"
+#include "pprzlink/intermcu_msg.h"
 
 /* Main magneto pitot strcuture */
 struct stereocam_t {
