@@ -29,7 +29,7 @@
 #include "stereoboard.h"
 
 
-static char ch = 'a';
+//static char ch = 'a';
 static float velx, vely, velz;
 
 
@@ -64,7 +64,7 @@ void stereoboardTask(void* arg)
 
       case 81: {
 
-        float res = (float)DL_STEREOCAM_VELOCITY_resolution(stereocam_data.data);
+        //float res = (float)DL_STEREOCAM_VELOCITY_resolution(stereocam_data.data);
 
 
         velx = (float)DL_STEREOCAM_VELOCITY_velx(stereocam_data.data);

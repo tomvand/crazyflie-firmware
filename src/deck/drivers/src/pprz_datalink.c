@@ -48,6 +48,7 @@ static void put_buffer(void *dev, long fd, uint8_t *data, uint16_t length)
 
 static int check_free_space(void *dev, long *fd, uint16_t length)
 {
+  return 0;
 
 }
 
