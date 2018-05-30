@@ -27,12 +27,20 @@
 
 
 #include "stereoboard.h"
+#include "zranger.h"
+#include "arm_math.h"
+#include "stabilizer_types.h"
+#include "estimator_kalman.h"
+#include "param.h"
 
+
+uint16_t range_last;
 
 //static char ch = 'a';
 static float velx, vely, velz;
+static float motion_x, motion_y;
 
-
+uint8_t use_stereoboard = 1;
 /*struct stereocam_t stereocam = {
    .device = 0,
    .msg_available = false
@@ -71,6 +79,23 @@ void stereoboardTask(void* arg)
         vely = (float)DL_STEREOCAM_VELOCITY_vely(stereocam_data.data);
         velz = (float)DL_STEREOCAM_VELOCITY_velz(stereocam_data.data);
 
+        float Npix = 30.0f;
+        float thetapix = 0.07f;
+        float rad_to_pixel = Npix / thetapix;
+
+
+       motion_x = rad_to_pixel*(float)atan((velz * 0.01f)*0.001f/(range_last * 0.001f));
+       motion_y = rad_to_pixel*(float)atan((velx * 0.01f)*0.001f/(range_last * 0.001f));
+
+       flowMeasurement_t flowData;
+       flowData.stdDevX = 0.25;    // [pixels] should perhaps be made larger?
+       flowData.stdDevY = 0.25;    // [pixels] should perhaps be made larger?
+       flowData.dt = 0.01;
+       flowData.dpixelx = motion_x;
+       flowData.dpixely = motion_y;
+
+       if (abs(motion_x) < 100 && abs(motion_y) < 100 && range_last > 100 && use_stereoboard == 1)
+           estimatorKalmanEnqueueFlow(&flowData);
 
        /*float noise = 1-(float)DL_STEREOCAM_VELOCITY_vRMS(stereocam_msg_buf)/res;
 
@@ -85,7 +110,7 @@ void stereoboardTask(void* arg)
     }
     //DEBUG_PRINT("%d, check!\n",vel);
 
-    vTaskDelay(1);
+    vTaskDelay(10);
 
   }
 }
@@ -101,7 +126,7 @@ void stereoboardDeckInit(DeckInfo *info)
 
   DEBUG_PRINT("Test StereoboardDeck!\n");
 
-  xTaskCreate(stereoboardTask, UART_RX_TASK_NAME, UART_RX_TASK_STACKSIZE, NULL, 2, NULL);
+  xTaskCreate(stereoboardTask, UART_RX_TASK_NAME, UART_RX_TASK_STACKSIZE, NULL, 3, NULL);
 
 
 }
@@ -124,5 +149,7 @@ LOG_GROUP_START(stereoboard)
 LOG_ADD(LOG_FLOAT, velocity x, &velx)
 LOG_ADD(LOG_FLOAT, velocity y, &vely)
 LOG_ADD(LOG_FLOAT, velocity z, &velz)
+LOG_ADD(LOG_FLOAT, motion_x, &motion_x)
+LOG_ADD(LOG_FLOAT, motion_y, &motion_y)
 
 LOG_GROUP_STOP(stereoboard)

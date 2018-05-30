@@ -30,6 +30,8 @@
 #include "stabilizer_types.h"
 #include "deck_core.h"
 
+extern uint16_t range_last;
+
 void zRangerInit(DeckInfo* info);
 
 bool zRangerTest(void);
