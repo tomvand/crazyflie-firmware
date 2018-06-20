@@ -24,10 +24,7 @@ static void send_message(void *port, long fd)
  */
 static void put_byte(void *dev, long fd, uint8_t data)
 {
-
-  uart1Putchar(data);
- /* while (((struct UartDataStruct*)dev)->tx(&data, 1) == 0)
-    ;*/
+	uart1SendData(1, &data);
 }
 
 /* Add data buffer to datalink
@@ -38,33 +35,27 @@ static void put_byte(void *dev, long fd, uint8_t data)
  */
 static void put_buffer(void *dev, long fd, uint8_t *data, uint16_t length)
 {
-
-  uart1SendData((uint32_t)length,data);
-/*  uint16_t i;
+  uint16_t i;
   for (i = 0; i < length; i++) {
     put_byte(dev, fd, data[i]);
-  }*/
+  }
 }
 
 static int check_free_space(void *dev, long *fd, uint16_t length)
 {
-  return 0;
+  return 255; // Buffer handled by crazyflie driver
 
 }
 
 static int char_available(void *dev)
 {
   return uart1CharAvailable();
-/*  return usart_char_available((struct UartDataStruct *)dev);*/
 }
 
 static uint8_t get_byte(void *dev)
 {
   char ch;
   uart1Getchar(&ch);
-
-
- // return (((struct UartDataStruct*)dev)->rx());
   return (uint8_t)ch;
 }
 

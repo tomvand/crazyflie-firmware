@@ -47,6 +47,7 @@ uint8_t use_stereoboard = 1;
    .device = 0,
    .msg_available = false
  };*/
+struct UartDataStruct USART1_Data;
 uint8_t msg_buf[4*64];           // define local data
 
 /* struct pprz_transport pprz;
@@ -138,7 +139,6 @@ void stereoboardTask(void* arg)
     //DEBUG_PRINT("%d, check!\n",vel);
 
     vTaskDelay(10);
-
   }
 }
 
@@ -147,7 +147,6 @@ void stereoboardTask(void* arg)
 void stereoboardDeckInit(DeckInfo *info)
 {
   uart1Init(115200);
-  struct UartDataStruct USART1_Data ;
 
   datalink_init(&USART1_Data);
 
