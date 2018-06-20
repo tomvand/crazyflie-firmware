@@ -40,7 +40,7 @@ uint16_t range_last;
 static float velx, vely, velz;
 static float homingvector_x, homingvector_y;
 static float motion_x, motion_y;
-static bool make_snapshot;
+static uint8_t make_snapshot = 0;
 uint8_t msg_id_check = 0;
 uint8_t use_stereoboard = 1;
 /*struct stereocam_t stereocam = {
@@ -82,18 +82,9 @@ void stereoboardTask(void* arg)
        homingvector_x = DL_STEREOCAM_VISUALHOMING_X(stereocam_data.data);
        homingvector_y = DL_STEREOCAM_VISUALHOMING_Y(stereocam_data.data);
 
-       uint8_t snapshot_on = 1;
-
         pprz_msg_send_STEREOCAM_VISUALHOMING_COMMAND(&(pprz.trans_tx), &dev, 0,
-          &snapshot_on );
-       if(make_snapshot == true)
-       {
-         // Stuff for Visual Homing
-        // uint8_t dummy_uint8 = 0;
-        // int8_t dummy_int8= 0;
-
-          // make_snapshot = false;
-       }
+          &make_snapshot );
+        break;
 
 
       }
@@ -190,5 +181,5 @@ LOG_GROUP_STOP(monocam)
 
 
 PARAM_GROUP_START(visualhoming)
-PARAM_ADD(PARAM_UINT8, disable, &make_snapshot)
+PARAM_ADD(PARAM_UINT8, make_snapshot, &make_snapshot)
 PARAM_GROUP_STOP(visualhoming)
