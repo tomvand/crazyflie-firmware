@@ -269,7 +269,7 @@ static void pamotionTask(void *param)
     if (abs(accpx) < OULIER_LIMIT && abs(accpy) < OULIER_LIMIT) {
 
       // Form flow measurement struct and push into the EKF
-      /*flowMeasurement_t flowData;
+      flowMeasurement_t flowData;
       flowData.stdDevX = 0.25;    // [pixels] should perhaps be made larger?
       flowData.stdDevY = 0.25;    // [pixels] should perhaps be made larger?
       flowData.dt = 0.01;
@@ -303,7 +303,7 @@ static void pamotionTask(void *param)
       // Push measurements into the Kalman filter
       if (!useFlowDisabled) {
         estimatorKalmanEnqueueFlow(&flowData);
-      }*/
+      }
     } else {
       outlierCount++;
     }
