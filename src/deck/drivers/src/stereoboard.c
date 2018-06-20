@@ -38,8 +38,10 @@ uint16_t range_last;
 
 //static char ch = 'a';
 static float velx, vely, velz;
+static float homingvector_x, homingvector_y;
 static float motion_x, motion_y;
-
+static bool make_snapshot;
+uint8_t msg_id_check = 0;
 uint8_t use_stereoboard = 1;
 /*struct stereocam_t stereocam = {
    .device = 0,
@@ -68,7 +70,32 @@ void stereoboardTask(void* arg)
 
 
     uint8_t msg_id = stereocam_data.data[1];
+    msg_id_check = msg_id;
+
+    motion_x = (float)msg_id;
     switch (msg_id) {
+
+
+      case 90: {
+
+       homingvector_x = DL_STEREOCAM_VISUALHOMING_X(stereocam_data.data);
+       homingvector_y = DL_STEREOCAM_VISUALHOMING_Y(stereocam_data.data);
+
+       uint8_t snapshot_on = 1;
+
+        pprz_msg_send_STEREOCAM_VISUALHOMING_COMMAND(&(pprz.trans_tx), &dev, 0,
+          &snapshot_on );
+       if(make_snapshot == true)
+       {
+         // Stuff for Visual Homing
+        // uint8_t dummy_uint8 = 0;
+        // int8_t dummy_int8= 0;
+
+          // make_snapshot = false;
+       }
+
+
+      }
 
       case 81: {
 
@@ -84,18 +111,18 @@ void stereoboardTask(void* arg)
         float rad_to_pixel = Npix / thetapix;
 
 
-       motion_x = rad_to_pixel*(float)atan((velz * 0.01f)*0.001f/(range_last * 0.001f));
+       //motion_x = rad_to_pixel*(float)atan((velz * 0.01f)*0.001f/(range_last * 0.001f));
        motion_y = rad_to_pixel*(float)atan((velx * 0.01f)*0.001f/(range_last * 0.001f));
 
-       flowMeasurement_t flowData;
+        /*flowMeasurement_t flowData;
        flowData.stdDevX = 0.25;    // [pixels] should perhaps be made larger?
        flowData.stdDevY = 0.25;    // [pixels] should perhaps be made larger?
        flowData.dt = 0.01;
        flowData.dpixelx = motion_x;
        flowData.dpixely = motion_y;
 
-       if (abs(motion_x) < 100 && abs(motion_y) < 100 && range_last > 100 && use_stereoboard == 1)
-           estimatorKalmanEnqueueFlow(&flowData);
+      if (abs(motion_x) < 100 && abs(motion_y) < 100 && range_last > 100 && use_stereoboard == 1)
+           estimatorKalmanEnqueueFlow(&flowData);*/
 
        /*float noise = 1-(float)DL_STEREOCAM_VELOCITY_vRMS(stereocam_msg_buf)/res;
 
@@ -153,3 +180,16 @@ LOG_ADD(LOG_FLOAT, motion_x, &motion_x)
 LOG_ADD(LOG_FLOAT, motion_y, &motion_y)
 
 LOG_GROUP_STOP(stereoboard)
+
+LOG_GROUP_START(monocam)
+LOG_ADD(LOG_FLOAT, homingvector_x, &homingvector_x)
+LOG_ADD(LOG_FLOAT, homingvector_y, &homingvector_y)
+LOG_ADD(LOG_UINT8, make_snapshot, &make_snapshot)
+LOG_ADD(LOG_UINT8, msg_id_check, &msg_id_check)
+
+LOG_GROUP_STOP(monocam)
+
+
+PARAM_GROUP_START(visualhoming)
+PARAM_ADD(PARAM_UINT8, disable, &make_snapshot)
+PARAM_GROUP_STOP(visualhoming)
