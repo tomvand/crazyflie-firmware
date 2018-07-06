@@ -82,7 +82,7 @@ void stereoboardTask(void* arg)
     motion_x = (float) msg_id;
     switch (msg_id) {
       case 90:
-        homingvector_x = DL_STEREOCAM_VISUALHOMING_X(stereocam_data.data);
+        homingvector_x = -DL_STEREOCAM_VISUALHOMING_X(stereocam_data.data);
         homingvector_y = DL_STEREOCAM_VISUALHOMING_Y(stereocam_data.data);
         pprz_msg_send_STEREOCAM_VISUALHOMING_COMMAND(&(pprz.trans_tx), &dev, 0,
             &make_snapshot);
@@ -91,10 +91,10 @@ void stereoboardTask(void* arg)
           memset(&sp, 0, sizeof(sp));
           sp.mode.x = modeVelocity;
           sp.mode.y = modeVelocity;
-          sp.mode.z = modeVelocity;
-          sp.velocity.x = homingvector_x;
-          sp.velocity.y = homingvector_y;
-          sp.velocity.z = 0.0;
+          sp.mode.z = modeAbs;
+          sp.velocity.x = 2.0f * homingvector_x;
+          sp.velocity.y = 2.0f * homingvector_y;
+          sp.position.z = 0.8;
           sp.mode.yaw = modeVelocity;
           sp.attitudeRate.yaw = 0.0;
           commanderSetSetpoint(&sp, COMMANDER_PRIORITY_HOMING);
